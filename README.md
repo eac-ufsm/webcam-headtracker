@@ -1,25 +1,27 @@
-# Head tracker using webcam for auralization
+# Internoise 2021: Head tracker using webcam for auralization
 <p align="left">
-  <a href="https://github.com/eac-ufsm/internoise2021-headtracker/releases/" target="_blank">
-    <img alt="GitHub release" src="https://img.shields.io/github/v/release/eac-ufsm/internoise2021-headtracker?include_prereleases&style=flat-square">
+  <a href="https://github.com/eac-ufsm/webcam-headtracker/releases/" target="_blank">
+    <img alt="GitHub release" src="https://img.shields.io/github/v/release/eac-ufsm/webcam-headtracker?include_prereleases&style=flat-square">
   </a>
 
-  <a href="https://github.com/eac-ufsm/internoise2021-headtracker/commits/master" target="_blank">
-    <img src="https://img.shields.io/github/last-commit/eac-ufsm/internoise2021-headtracker?style=flat-square" alt="GitHub last commit">
+  <a href="https://github.com/eac-ufsm/webcam-headtracker/commits/master" target="_blank">
+    <img src="https://img.shields.io/github/last-commit/eac-ufsm/webcam-headtracker?style=flat-square" alt="GitHub last commit">
   </a>
 
-  <a href="https://github.com/eac-ufsm/internoise2021-headtracker/issues" target="_blank">
-    <img src="https://img.shields.io/github/issues/eac-ufsm/internoise2021-headtracker?style=flat-square&color=red" alt="GitHub issues">
+  <a href="https://github.com/eac-ufsm/webcam-headtracker/issues" target="_blank">
+    <img src="https://img.shields.io/github/issues/eac-ufsm/webcam-headtracker?style=flat-square&color=red" alt="GitHub issues">
   </a>
 
-  <a href="https://github.com/eac-ufsm/internoise2021-headtracker/blob/master/LICENSE" target="_blank">
-    <img alt="LICENSE" src="https://img.shields.io/github/license/eac-ufsm/internoise2021-headtracker?style=flat-square&color=yellow">
+  <a href="https://github.com/eac-ufsm/webcam-headtracker/blob/master/LICENSE" target="_blank">
+    <img alt="LICENSE" src="https://img.shields.io/github/license/eac-ufsm/webcam-headtracker?style=flat-square&color=yellow">
   <a/>
 
 </p>
 <hr>
 
 Support files for the Internoise 2021 paper "Head tracker using webcam for auralization".
+
+
 
 ## Description
 **Head tracker via camera face tracking and communication via UDP protocol.**
@@ -31,6 +33,7 @@ Support files for the Internoise 2021 paper "Head tracker using webcam for aural
   - ```/test:``` Presents auralization experiments in MATLAB using the HeadTracker.
   - ```/audios:``` The raw files for the audio examples in the paper.  
   - ```/videos:``` The images related to the head movements that produced the audios in the paper.
+  - ```/presentation:``` PDF conference presentation of the paper.
 
 
 ## System support 
@@ -94,7 +97,7 @@ udpr = dsp.UDPReceiver('RemoteIPAddress', '127.0.0.1',...
 while true   
     py_output = step(udpr);
     if ~isempty(py_output)
-        data = str2num(convertCharsToStrings(char(py_output))); %#ok<*ST2NM>
+        data = str2double(split(convertCharsToStrings(char(py_output)), ','));
         disp([' yaw:', num2str(data(1)),...
              ' pitch:', num2str(data(2)),...
              ' roll:', num2str(data(3))])
@@ -102,7 +105,7 @@ while true
 end 
  
 ```
-Other examples of the connection to matlab are posted [here](https://github.com/eac-ufsm/internoise2021-headtracker/tree/main/test).
+Other examples of the connection to matlab are posted [here](https://github.com/eac-ufsm/webcam-headtracker/releases).
 
 <br/>
 
@@ -112,18 +115,19 @@ Other examples of the connection to matlab are posted [here](https://github.com/
 
 # Cite us
 
-> D. R. Carvalho; W. D’A. Fonseca; J. Hollebon; P. H. Mareze; F. M. Fazi. Head tracker using webcam for auralization. In *50th International Congress and Exposition on Noise Control Engineering - Internoise 2021*, pages 1–12, Washington, DC, USA, Aug. 2021.
+> D. R. Carvalho; W. D’A. Fonseca; J. Hollebon; P. H. Mareze; F. M. Fazi. Head tracker using webcam for auralization. In *50th International Congress and Exposition on Noise Control Engineering — Internoise 2021*, pages 5071–5082(12), Washington, DC, USA, Aug. 2021. doi: [10.3397/IN-2021-2956](https://doi.org/10.3397/IN-2021-2956).
 
 **Bibtex:**
 ```
 @InProceedings{headtracker:2021,
   author    = {Davi Rocha Carvalho and William {\relax D'A}ndrea Fonseca and Jacob Hollebon and Paulo Henrique Mareze and Filippo Maria Fazi},
-  booktitle = {{50th International Congress and Exposition on Noise Control Engineering - Internoise 2021}},
+  booktitle = {{50th International Congress and Exposition on Noise Control Engineering --- Internoise 2021}},
   title     = {Head tracker using webcam for auralization},
   year      = {2021},
   address   = {Washington, DC, USA},
   month     = {Aug.},
-  pages     = {1--12},
+  pages     = {5071--5082(12)},
+  doi       = {10.3397/IN-2021-2956},
 }
 ```
 
