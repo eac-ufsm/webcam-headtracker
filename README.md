@@ -73,14 +73,14 @@ Support files for the Internoise 2021 paper "Head tracker using webcam for aural
 
 
 ### Interpreting received data
-The HeadTracker application currently sends to the server yaw, pitch and roll information in degrees, where downwards pitch and counterclockwise roll and yaw are denoted with negative angles, such that the full rotation is bounded between -180° and 180°, as illustrated bellow. 
+The HeadTracker application currently sends to the server yaw, pitch and roll information in degrees and translational positions in centimeters, where downwards pitch and counterclockwise roll and yaw are denoted with negative angles, such that the full rotation is bounded between -180° and 180°, as illustrated bellow. 
 
 
 <p align="center">
 <img width="400px" src="https://github.com/eac-ufsm/internoise2021-headtracker/blob/main/images/coord.svg"/>
 </p>
   
-The sent data are strings encoded into bytes,  for e.g. if the sent/received message is: **b'-5,10,0'**,  the corresponding coordinates are **yaw**=-5°, **pitch**=10° and **roll**=0°  &#8212; depending on the application the data needs to be decoded for proper use.
+The sent data are strings encoded into bytes,  for e.g. if the sent/received message is: **b'-5,10,0,30,9,75'**,  the corresponding coordinates are **yaw**=-5°, **pitch**=10°, **roll**=0°, **Tx**=30 cm, **Ty**=9 cm and **Tz**=75 cm &#8212; depending on the application the data needs to be decoded for proper use.
 
 
 ### Example: reading HeadTracker output data with Matlab
