@@ -5,7 +5,6 @@ Head tracker via face landmarks recognition (Google's MediaPipe - face_mesh)
 import cv2
 import mediapipe as mp
 import socket
-import threading
 import numpy as np 
 from face_geometry import get_metric_landmarks, PCF, procrustes_landmark_basis
 import sys
@@ -28,17 +27,24 @@ def get_head_orientation():
     else:
       pitch = pitch - 180
 
-    t = '{y},{p},{r}'.format(y=round(yaw),
-                             p=round(pitch),
-                             r=round(roll)) 
-    return t
+    t_x = tvec.item(0)
+    t_y = tvec.item(2)
+    t_z = tvec.item(1)
+    txt = '{t_yaw},{t_pitch},{t_roll},{tx},{ty},{tz}'.format(t_yaw = yaw,
+                                                           t_pitch = pitch,
+                                                           t_roll= roll,
+                                                           tx = t_x,
+                                                           ty = t_y,
+                                                           tz = t_z)   
+    data = [yaw, pitch, roll, t_x, t_y, t_z]
+    return txt, data
 
 
 def send_to_server():
     try:
-      coords = get_head_orientation()
+      coords, data = get_head_orientation()
       s.sendto(coords.encode(), (IP,PORT)) #send message back
-      return coords
+      return data
     except:
       print('Sending UDP failed!')
 
@@ -130,10 +136,14 @@ def processing():
 
           # UDP Listening to ports
           coords = send_to_server()    
+          coords = np.round(coords)
 
           # Draw yaw, pitch and roll in the top left corner
-          image = cv2.putText(image, coords, (00, 30  ), cv2.FONT_HERSHEY_SIMPLEX, 0.8,
+          image = cv2.putText(image, str(coords[:3]), (00, 30  ), cv2.FONT_HERSHEY_SIMPLEX, 0.8,
                             (255, 40, 0), 2, cv2.LINE_AA) 
+
+          image = cv2.putText(image, str(coords[3:]), (00, 90  ), cv2.FONT_HERSHEY_SIMPLEX, 0.8,
+                            (0, 100, 200), 2, cv2.LINE_AA) 
 
           # Open window: show image
           cv2.imshow(window_name, image)
