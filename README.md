@@ -123,10 +123,6 @@ Other examples of the connection to matlab are posted [here](https://github.com/
 
 <br/>
 
-## Issues
-
- - So far the code defaults to the main camera, if you experience difficulties, you can either enable only the desired one in your system or directly select it [in the code](https://github.com/eac-ufsm/internoise2021-headtracker/blob/1f2dada96790360cbd68de936ef04852579f9a27/src/HeadTracker.py#L85) by changing the index in ```cv2.VideoCapture(0)```.
-
 # Cite us
 
 > D. R. Carvalho; W. D’A. Fonseca; J. Hollebon; P. H. Mareze; F. M. Fazi. Head tracker using webcam for auralization. In *50th International Congress and Exposition on Noise Control Engineering — Internoise 2021*, pages 5071–5082(12), Washington, DC, USA, Aug. 2021. doi: [10.3397/IN-2021-2956](https://doi.org/10.3397/IN-2021-2956).
