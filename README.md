@@ -1,4 +1,4 @@
-# Internoise 2021: Head tracker using webcam for auralization
+# Head tracker using webcam for auralization
 <p align="left">
   <a href="https://github.com/eac-ufsm/webcam-headtracker/releases/" target="_blank">
     <img alt="GitHub release" src="https://img.shields.io/github/v/release/eac-ufsm/webcam-headtracker?include_prereleases&style=flat-square">
@@ -42,8 +42,8 @@ Support files for the Internoise 2021 paper "Head tracker using webcam for aural
 | Windows |   Tested on Windows 10  |
 |  macOS  | Tested on v10.15 and v11.2.1 (amd_64) |
 |  Linux  | Tested on Ubuntu 18.04.5 LTS          |
+|  Raspberry Pi  | Tested        |
 
-- It also works on **Raspberry Pi**.
 
 <br/><br/>
 ## Setup python environment
@@ -74,16 +74,16 @@ Support files for the Internoise 2021 paper "Head tracker using webcam for aural
   
   It is also possible to specify some other useful parameter by adding parameter/value flags during initialization, such as:
   ```python
-  python HeadTracker.py --port 5555 --width 1280 --height 720 
+  python HeadTracker.py --input_id 0 --port 5555 --width 1280 --height 720 
   ```
   Use ```python HeadTracker.py --help``` to see all the available options.
   
   
- - **Alternatively you may use the Windows executables distributed [here](https://github.com/eac-ufsm/internoise2021-headtracker/releases/tag/1.05.23). Notice that you don't need to setup an environment, or install anything else, in order to use the ```.exe``` standalones.**
+ - **Alternatively you may use the Windows executables distributed [here](https://github.com/eac-ufsm/internoise2021-headtracker/releases/tag/1.05.23). Notice that you don't need to setup an environment, or install anything else, in order to use the ```.exe``` standalones.** (The distributed executables are outdated in relation to this repository)
 
-- Connect to any plataform that accepts UDP/IP connection using the address: ```IP:'127.0.0.1'```  and ```PORT:5555``` .
+- Connect to any plataform that accepts UDP/IP connection, use the address: ```IP:'127.0.0.1'```  and ```PORT:5555``` .
 
-- In order to close the app, mouse clicking "quit the window" might not work in all operating systems, as a general rule use "Esc" to finish the process, while we work in a more elegant solution for this issue.
+- In order to close the app, mouse clicking "quit the window" might not work in all operating systems, as a general rule use "Esc" to finish the process.
 
 
 ### Interpreting received data
