@@ -67,14 +67,21 @@ Support files for the Internoise 2021 paper "Head tracker using webcam for aural
 - Mediapipe: https://pypi.org/project/mediapipe-rpi4/
 
 ## Using the HeadTracker
-  The application can be initialized with:
+  The application can be initialized with the default parameters by running:
   ```python
   python HeadTracker.py
   ```
   
+  It is also possible to specify some other useful parameter by adding parameter/value flags during initialization, such as:
+  ```python
+  python HeadTracker.py --port 5555 --width 1280 --height 720 
+  ```
+  Use ```python HeadTracker.py --help``` to see all the available options.
+  
+  
  - **Alternatively you may use the Windows executables distributed [here](https://github.com/eac-ufsm/internoise2021-headtracker/releases/tag/1.05.23). Notice that you don't need to setup an environment, or install anything else, in order to use the ```.exe``` standalones.**
 
-- Connect to any plataform that accepts UDP/IP connection using the address: ```IP:'127.0.0.1'```  and ```PORT:50050``` .
+- Connect to any plataform that accepts UDP/IP connection using the address: ```IP:'127.0.0.1'```  and ```PORT:5555``` .
 
 - In order to close the app, mouse clicking "quit the window" might not work in all operating systems, as a general rule use "Esc" to finish the process, while we work in a more elegant solution for this issue.
 
@@ -98,7 +105,7 @@ open('HeadTracker.exe')
 
 % Connect to the local server
 udpr = dsp.UDPReceiver('RemoteIPAddress', '127.0.0.1',...
-                       'LocalIPPort',50050); 
+                       'LocalIPPort',5555); 
 
 % Read data from the head tracker
 while true   
