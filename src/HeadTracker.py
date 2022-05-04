@@ -12,13 +12,17 @@ from face_geometry import get_metric_landmarks, PCF, procrustes_landmark_basis
 
 
 @click.command()
-@click.option('--input_id', default=0, help="Index of the camera input", multiple=False, type=int)
-@click.option('--port', default=5555, help="Select UDP output port", multiple=False, type=int)
-@click.option('--height', '-h', default=480, help="Frame height", multiple=False, type=int)
-@click.option('--width', '-w', default=640, help="Frame width", multiple=False, type=int)
-@click.option('--cam_rotation', '-r', default=0, help="Camera rotation (0° or 180°)", multiple=False, type=int)
+@click.option('--input_id', '-i', default=0, help="Index of the camera input, (Default: 0)", multiple=False, type=int)
+@click.option('--port', '-p', default=5555, help="UDP output port, (Default: 5555)", multiple=False, type=int)
+@click.option('--width', '-w', default=640, help="Image width, (Default: 640)", multiple=False, type=int)
+@click.option('--height', '-h', default=480, help="Image height, (Default: 480)", multiple=False, type=int)
+@click.option('--cam_rotation', '-r', default=0, help="Camera rotation, either 0 or 180 (Default: 0)", multiple=False, type=int)
 def processing(input_id, port, height, width, cam_rotation):
-    """live cam tracking"""
+    """
+    Head tracker via face landmarks recognition.
+    ---------------------------------------------
+    EAC-UFSM
+    """
     # Select the mechanism to quit the window according to the OS
     winOS = ['win32', 'cygwin']
     if sys.platform in winOS:
@@ -67,7 +71,7 @@ def processing(input_id, port, height, width, cam_rotation):
             if not success:
                 print("Ignoring empty camera frame.")
                 continue
-            
+
             # Flip image vertically if required
             if cam_rotation == 180:
                 image = cv2.rotate(image, cv2.ROTATE_180)
