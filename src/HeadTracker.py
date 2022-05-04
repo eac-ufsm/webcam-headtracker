@@ -13,7 +13,11 @@ from face_geometry import get_metric_landmarks, PCF, procrustes_landmark_basis
 
 @click.command()
 @click.option('--input_id', default=0, help="Index of the camera input", multiple=False, type=int)
-def processing(input_id):
+@click.option('--port', default=5555, help="Select UDP output port", multiple=False, type=int)
+@click.option('--height', '-h', default=480, help="Frame height", multiple=False, type=int)
+@click.option('--width', '-w', default=640, help="Frame width", multiple=False, type=int)
+@click.option('--cam_rotation', '-r', default=0, help="Camera rotation (0° or 180°)", multiple=False, type=int)
+def processing(input_id, port, height, width, cam_rotation):
     """live cam tracking"""
     # Select the mechanism to quit the window according to the OS
     winOS = ['win32', 'cygwin']
@@ -22,13 +26,20 @@ def processing(input_id):
     else:
         kill_on_x = False  # only allow to quit using "Esc"
 
+    # Initialize UDP server
+    global rotation_vector, translation_vector
+    global s, IP, PORT
+    IP = '127.0.0.1'  # Symbolic name meaning all available interfaces
+    PORT = port       # Arbitrary non-privileged port
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
     # MEDIAPIPE SETUP ---------------------------------------------------------------
     window_name = f'Head tracker -- [IP:{IP}, PORT:{PORT}]'  # Window name
     points_idx = [33, 263, 61, 291, 199]  # [k for k in range(0,468)]
     points_idx = points_idx + [key for (key, val) in procrustes_landmark_basis]
     points_idx = list(set(points_idx))
     points_idx.sort()
-    frame_height, frame_width, _ = (480, 640, 3)
+    frame_height, frame_width, _ = (height, width, 3)
     # pseudo camera internals
     focal_length = frame_width
     center = (frame_width / 2, frame_height / 2)
@@ -41,13 +52,6 @@ def processing(input_id):
 
     mp_face_mesh = mp.solutions.face_mesh
     # mp_drawing = mp.solutions.drawing_utils
-
-    # Initialize UDP server
-    global rotation_vector, translation_vector
-    global s, IP, PORT
-    IP = '127.0.0.1'  # Symbolic name meaning all available interfaces
-    PORT = 5555       # Arbitrary non-privileged port
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     # Live Tracking --------------------------------------------------------------------------
     with mp_face_mesh.FaceMesh(min_detection_confidence=0.5,
@@ -63,7 +67,10 @@ def processing(input_id):
             if not success:
                 print("Ignoring empty camera frame.")
                 continue
-
+            
+            # Flip image vertically if required
+            if cam_rotation == 180:
+                image = cv2.rotate(image, cv2.ROTATE_180)
             # Flip image horizontally for a later selfie-view display, and convert
             # the BGR image to RGB.
             image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
