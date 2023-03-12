@@ -8,21 +8,37 @@ import cv2
 import click
 import numpy as np
 import mediapipe as mp
-from face_geometry import get_metric_landmarks, PCF, procrustes_landmark_basis
+from EACheadtracker.face_geometry import get_metric_landmarks, PCF, procrustes_landmark_basis
 
 
-@click.command()
-@click.option('--input_id', '-i', default=0, help="Index of the camera input, (Default: 0)", multiple=False, type=int)
-@click.option('--port', '-p', default=5555, help="UDP output port, (Default: 5555)", multiple=False, type=int)
-@click.option('--width', '-w', default=640, help="Image width, (Default: 640)", multiple=False, type=int)
-@click.option('--height', '-h', default=480, help="Image height, (Default: 480)", multiple=False, type=int)
-@click.option('--cam_rotation', '-r', default=0, help="Camera rotation, either 0 or 180 (Default: 0)", multiple=False, type=int)
-def processing(input_id, port, height, width, cam_rotation):
+def start(input_id=0, port=5555, width=640, height=480, cam_rotation=0):
     """
     Head tracker via face landmarks recognition.
     ---------------------------------------------
     EAC-UFSM
     """
+    # Initialize UDP server ---------------------------------------------------------
+    global rotation_vector, translation_vector
+    global s, IP, PORT
+    IP = '127.0.0.1'  # Symbolic name meaning all available interfaces
+    PORT = port       # Arbitrary non-privileged port
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+    # OpenCV config -----------------------------------------------------------------
+    frame_height, frame_width, _ = (height, width, 3)
+    cap = cv2.VideoCapture(input_id)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, frame_width)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, frame_height)
+    cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
+    _, image = cap.read()
+    frame_height, frame_width, _ = image.shape
+
+    # cap.set(cv2.CAP_PROP_FPS, 120)
+    # speed up initialization perception
+    image = np.zeros((frame_height, frame_width))
+    window_name = f'Head tracker -- [IP:{IP}, PORT:{PORT}]'  # Window name
+    cv2.imshow(window_name, image)
+    cv2.setWindowProperty(window_name, cv2.WND_PROP_TOPMOST, 1)
     # Select the mechanism to quit the window according to the OS
     winOS = ['win32', 'cygwin']
     if sys.platform in winOS:
@@ -30,20 +46,11 @@ def processing(input_id, port, height, width, cam_rotation):
     else:
         kill_on_x = False  # only allow to quit using "Esc"
 
-    # Initialize UDP server
-    global rotation_vector, translation_vector
-    global s, IP, PORT
-    IP = '127.0.0.1'  # Symbolic name meaning all available interfaces
-    PORT = port       # Arbitrary non-privileged port
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-    # MEDIAPIPE SETUP ---------------------------------------------------------------
-    window_name = f'Head tracker -- [IP:{IP}, PORT:{PORT}]'  # Window name
+    # Tracking setup ---------------------------------------------------------------
     points_idx = [33, 263, 61, 291, 199]  # [k for k in range(0,468)]
     points_idx = points_idx + [key for (key, val) in procrustes_landmark_basis]
     points_idx = list(set(points_idx))
     points_idx.sort()
-    frame_height, frame_width, _ = (height, width, 3)
     # pseudo camera internals
     focal_length = frame_width
     center = (frame_width / 2, frame_height / 2)
@@ -53,19 +60,12 @@ def processing(input_id, port, height, width, cam_rotation):
     dist_coeff = np.zeros((4, 1))
 
     pcf = PCF(near=1, far=10000, frame_height=frame_height, frame_width=frame_width, fy=camera_matrix[1, 1])
-
     mp_face_mesh = mp.solutions.face_mesh
-    # mp_drawing = mp.solutions.drawing_utils
+    # mp_drawing = mp.solutions.drawing_utils  # use mediapipe internal drawings
 
     # Live Tracking --------------------------------------------------------------------------
     with mp_face_mesh.FaceMesh(min_detection_confidence=0.5,
                                min_tracking_confidence=0.5) as face_mesh:
-        cap = cv2.VideoCapture(input_id)
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, frame_width)
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, frame_height)
-        cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'MJPG'))
-        # cap.set(cv2.CAP_PROP_FPS, 120)
-
         while cap.isOpened():
             success, image = cap.read()
             if not success:
@@ -123,15 +123,15 @@ def processing(input_id, port, height, width, cam_rotation):
                 coords = np.round(coords)
 
                 # Draw yaw, pitch and roll in the top left corner
-                image = cv2.putText(image, str(coords[:3]), (00, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6,
+                image = cv2.putText(image, str(coords[:3]), (00, 30), cv2.LINE_AA, 0.6,
                                     (255, 40, 0), 2, cv2.LINE_AA)
 
-                image = cv2.putText(image, str(coords[3:]), (00, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.6,
+                image = cv2.putText(image, str(coords[3:]), (00, 90), cv2.LINE_AA, 0.6,
                                     (0, 100, 200), 2, cv2.LINE_AA)
 
-                # Open window: show image
-                cv2.imshow(window_name, image)
-                cv2.setWindowProperty(window_name, cv2.WND_PROP_TOPMOST, 1)
+            # Open window: show image
+            cv2.imshow(window_name, image)
+            cv2.setWindowProperty(window_name, cv2.WND_PROP_TOPMOST, 1)
 
             # Kill it when you press "Esc"
             if cv2.waitKey(5) & 0xFF == 27:
@@ -179,5 +179,19 @@ def send_to_server():
         print('Sending UDP failed!')
 
 
+@click.command()
+@click.option('--input_id', '-i', default=0, help="Index of the camera input, (Default: 0)", multiple=False, type=int)
+@click.option('--port', '-p', default=5555, help="UDP output port, (Default: 5555)", multiple=False, type=int)
+@click.option('--width', '-w', default=640, help="Image width, (Default: 640)", multiple=False, type=int)
+@click.option('--height', '-h', default=480, help="Image height, (Default: 480)", multiple=False, type=int)
+@click.option('--cam_rotation', '-r', default=0, help="Camera rotation, either 0 or 180 (Default: 0)", multiple=False, type=int)
+def cmd_start(input_id, port, height, width, cam_rotation):
+    start(input_id, port, height, width, cam_rotation)
+
+
 if __name__ == "__main__":
-    processing()
+    try:
+        cmd_start()
+    except:
+        start(0, 5555, 640, 420, 0)
+

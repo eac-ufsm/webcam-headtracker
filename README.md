@@ -29,14 +29,14 @@ Support files for the Internoise 2021 paper "Head tracker using webcam for aural
 *Built on top of the [Google's MediaPipe](https://github.com/google/mediapipe) face_mesh (python release).*
 
 ## Folder structure:
-  - ```/src:``` Contains the source code for the HeadTracker as published in the paper.
+  - ```/EACheadtracker:``` Contains the source code for the HeadTracker as published in the paper.
   - ```/test:``` Presents auralization experiments in MATLAB using the HeadTracker.
-  - ```/audios:``` The raw files for the audio examples in the paper.  
+  - ```/audios:``` The raw files for the audio examples in the paper.
   - ```/videos:``` The images related to the head movements that produced the audios in the paper.
   - ```/presentation:``` PDF conference presentation of the paper.
 
 
-## System support 
+## System support
 |    OS   |         Support         |
 |:-------:|:-----------------------:|
 | Windows |   Tested on Windows 10  |
@@ -46,39 +46,41 @@ Support files for the Internoise 2021 paper "Head tracker using webcam for aural
 
 
 <br/><br/>
-## Setup python environment
-  - This application only requires you to run ```pip install mediapipe==0.8.3.1```. However for the sake of good practices, we recommend you create a new python enviroment and install the required libraries with:
-  
-  ```R
-  cd internoise2021-headtracker/src/
-  
-  conda create --name headtracker python=3.8
-  
-  conda activate headtracker
-
-  pip install -r requirements.txt
-  ``` 
-- MediaPipe supports Python 3.6 to 3.8.
-
-
 ### Raspberry Pi
   Install OpenCV and mediapipe from the sources bellow:
 - OpenCV: https://pimylifeup.com/raspberry-pi-opencv/
 - Mediapipe: https://pypi.org/project/mediapipe-rpi4/
 
-## Using the HeadTracker
-  The application can be initialized with the default parameters by running:
+
+## Installation
+Use pip to install EACheadtracker:
+```
+$ pip install EACheadtracker
+```
+
+## Getting started
+Bellow there's a example code showing how simple it is to setup and use the EACheadtracker in python.
+
+```python
+from EACheadtracker import HeadTracker
+
+HeadTracker.start(input_id=0, port=5555, width=640, height=480, cam_rotation=0)
+```
+
+
+### From command line
+  In case you need to run the code directly form the command line the application can be initialized with the default parameters by running:
   ```python
-  python HeadTracker.py
+  python EACheadtracker/HeadTracker.py
   ```
-  
+
   It is also possible to specify some other useful parameter by adding parameter/value flags during initialization, such as:
   ```python
-  python HeadTracker.py --input_id 0 --port 5555 --width 1280 --height 720 
+  python HeadTracker.py --input_id 0 --port 5555 --width 1280 --height 720
   ```
   Use ```python HeadTracker.py --help``` to see all the available options.
-  
-  
+
+
  - **Alternatively you may use the Windows executables distributed [here](https://github.com/eac-ufsm/internoise2021-headtracker/releases/tag/1.05.23). Notice that you don't need to setup an environment, or install anything else, in order to use the ```.exe``` standalones.** (The distributed executables are outdated in relation to this repository)
 
 - Connect to any plataform that accepts UDP/IP connection, use the address: ```IP:'127.0.0.1'```  and ```PORT:5555``` .
@@ -87,13 +89,13 @@ Support files for the Internoise 2021 paper "Head tracker using webcam for aural
 
 
 ### Interpreting received data
-The HeadTracker application currently sends to the server yaw, pitch and roll information in degrees and translational positions in centimeters, where downwards pitch and counterclockwise roll and yaw are denoted with negative angles, such that the full rotation is bounded between -180° and 180°, as illustrated bellow. 
+The HeadTracker application currently sends to the server yaw, pitch and roll information in degrees and translational positions in centimeters, where downwards pitch and counterclockwise roll and yaw are denoted with negative angles, such that the full rotation is bounded between -180° and 180°, as illustrated bellow.
 
 
 <p align="center">
 <img width="400px" src="https://github.com/eac-ufsm/internoise2021-headtracker/blob/main/images/coord.svg"/>
 </p>
-  
+
 The sent data are strings encoded into bytes,  for e.g. if the sent/received message is: **b'-5,10,0,30,9,75'**,  the corresponding coordinates are **yaw**=-5°, **pitch**=10°, **roll**=0°, **Tx**=30 cm, **Ty**=9 cm and **Tz**=75 cm &#8212; depending on the application the data needs to be decoded for proper use.
 
 
@@ -101,14 +103,14 @@ The sent data are strings encoded into bytes,  for e.g. if the sent/received mes
 Bellow you can find a snippet of how to connect to the UDP address and convert the binary data to matlab array.
 ``` matlab
 % Open the HeadTracker application (make sure the file path is added to matlab path variables)
-open('HeadTracker.exe')   
+open('HeadTracker.exe')
 
 % Connect to the local server
 udpr = dsp.UDPReceiver('RemoteIPAddress', '127.0.0.1',...
-                       'LocalIPPort',5555); 
+                       'LocalIPPort',5555);
 
 % Read data from the head tracker
-while true   
+while true
     py_output = step(udpr);
     if ~isempty(py_output)
         data = str2double(split(convertCharsToStrings(char(py_output)), ','));
@@ -116,8 +118,8 @@ while true
              ' pitch:', num2str(data(2)),...
              ' roll:', num2str(data(3))])
     end
-end 
- 
+end
+
 ```
 Other examples of the connection to matlab are posted [here](https://github.com/eac-ufsm/webcam-headtracker/releases).
 
